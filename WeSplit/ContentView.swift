@@ -12,6 +12,14 @@ struct ContentView: View {
     @State private var checkAmount = ""
     @State private var numberOfPeople = ""
     @State private var tipPercentageIndex = 2
+
+    var tipIsZero: Bool {
+        if 0 == tipPercentages[tipPercentageIndex] {
+            return true
+        } else {
+            return false
+        }
+    }
     
     let tipPercentages = [10, 15, 20, 25, 0]
     
@@ -46,13 +54,8 @@ struct ContentView: View {
                     
                     TextField("Number of people", text: $numberOfPeople)
                     .keyboardType(.decimalPad)
-                    
-//                    Picker("Number of people", selection: $numberOfPeople) {
-//                        ForEach(2 ..< 100) {
-//                            Text("\($0) people")
-//                        }
-//                    }
                 }
+                
                 Section(header: Text("How much tip do you want to leave?")) {
                     Picker("Tip percentage", selection: $tipPercentageIndex) {
                         ForEach(0 ..< tipPercentages.count) {
@@ -61,15 +64,32 @@ struct ContentView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }
+                
                 Section(header: Text("Amount per person")) {
                     Text("$\(totalPerPerson, specifier: "%.2f")")
+                        .modifier(FinalAmountTextModifier(isTipsZero: false))
                 }
+                
                 Section(header: Text("Total amount")) {
                     Text("$\(grandTotal, specifier: "%.2f")")
+                        .modifier(FinalAmountTextModifier(isTipsZero: tipIsZero))
                 }
             }
-        .navigationBarTitle("WeSplit")
+            .navigationBarTitle("WeSplit")
         }
+    }
+}
+
+struct FinalAmountTextModifier: ViewModifier {
+    var isTipsZero: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .font(.largeTitle)
+            .foregroundColor(.white)
+            .padding()
+            .background(isTipsZero ? Color.red : Color.blue)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
